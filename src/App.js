@@ -125,7 +125,7 @@ export default function App() {
         onChange={(e) => {
           setSize(e.target.value);
         }}
-        value={this.size}
+        value={size}
       >
         <option>5</option>
         <option>8</option>
