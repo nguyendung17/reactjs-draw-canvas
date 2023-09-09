@@ -1,7 +1,10 @@
 import "./styles.css";
 import { useEffect, useState } from "react";
 window.isDraw = false;
+window.color = 'black';
+window.size =5
 export default function App() {
+  const [isShowCanvas, setIsShowCanvas] = useState(false);
   const [canvas, setCanvas] = useState(false);
   const [size, setSize] = useState(5);
   useEffect(() => {
@@ -20,7 +23,7 @@ export default function App() {
       };
     }
     function draw(e) {
-      console.log(window.isDraw);
+      // console.log(window.isDraw);
       var pos = getMousePos(canvas, e);
 
       if (!window.isDraw) {
@@ -43,9 +46,11 @@ export default function App() {
       // Start a new Path
       if (preX) {
         ctx.beginPath();
-        ctx.lineWidth = size;
+        
+        ctx.lineWidth = window.size;
         ctx.moveTo(preX, preY);
         ctx.lineTo(pos.x, pos.y);
+        ctx.strokeStyle = window.color;
         ctx.stroke();
       }
       preX = pos.x;
@@ -64,7 +69,7 @@ export default function App() {
     canvas.addEventListener(
       "mousedown",
       function (e) {
-        console.log("xxx");
+        // console.log("xxx");
         window.isDraw = true;
       },
       false
@@ -83,6 +88,22 @@ export default function App() {
       },
       false
     );
+
+
+    canvas.addEventListener('touchstart', ()=>{
+      window.isDraw = true;
+    });
+    canvas.addEventListener('touchend', ()=>{
+      window.isDraw = false;
+    });
+    canvas.addEventListener('touchcancel',  ()=>{
+      window.isDraw = false;
+    });
+    canvas.addEventListener('touchmove',  function (e) {
+      draw(e);
+    },);
+
+
   }, []);
   function downloadImage(data, filename = "untitled.jpeg") {
     var a = document.createElement("a");
@@ -95,20 +116,21 @@ export default function App() {
     downloadImage(canvas.toDataURL("image/png"), "download.jpeg");
   }
   function changeHandler(event) {
+    setIsShowCanvas(true)
     const canvas = document.getElementById("canvas");
     let file = event.target.files[0];
-    console.log(event.target.files[0]);
+    // console.log(event.target.files[0]);
     var reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = function () {
-      console.log(reader.result);
+      // console.log(reader.result);
       const ctx = canvas.getContext("2d");
       const img = new Image();
 
       img.src = reader.result;
       // img.crossOrigin = "anonymous";
       img.onload = function () {
-        console.log(img.width, img.height);
+        // console.log(img.width, img.height);
 
         canvas.width = img.width;
         canvas.height = img.height;
@@ -116,13 +138,15 @@ export default function App() {
       };
     };
     reader.onerror = function (error) {
-      console.log("Error: ", error);
+      // console.log("Error: ", error);
     };
   }
   return (
     <div className="App">
       <select
         onChange={(e) => {
+
+          window.size =(e.target.value);
           setSize(e.target.value);
         }}
         value={size}
@@ -133,9 +157,14 @@ export default function App() {
         <option>15</option>
       </select>
       &nbsp;
+      {color}
+      <input onChange={(e)=>{
+        window.color = (e.target.value);
+      }} type="color"></input>
+      &nbsp;
       <input onChange={changeHandler} type="file" />
       <button onClick={save}>Save</button>
-      <canvas id="canvas"></canvas>
+      <canvas className={isShowCanvas?'show':'hide'} id="canvas"></canvas>
     </div>
   );
 }
